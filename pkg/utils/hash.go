@@ -1,3 +1,4 @@
+//go:generate go run github.com/vektra/mockery/v2@latest --name=Hasher --output=./mocks --outpkg=mocks_utils
 package utils
 import(
 	"golang.org/x/crypto/bcrypt"
@@ -27,4 +28,10 @@ func (h *hasher) Hash(password string) (string, error) {
 func (h *hasher) Compare(hash, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
+}
+
+func NoErr(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

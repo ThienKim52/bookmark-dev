@@ -1,10 +1,10 @@
-package service
+package healthcheck
 
 import (
 	"context"
 	"testing"
 
-	"github.com/ThienKim52/golang-dev/internal/app/repository"
+	"github.com/ThienKim52/golang-dev/internal/app/repository/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,7 +47,7 @@ func TestGetHealthCheck(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			mockRepo := new(repository.MockLinkRepository)
+			mockRepo := new(mocks.MockLinkRepository)
 			service := NewHealthCheck(mockRepo, tt.serviceName, tt.instanceID)
 			mockRepo.On("Ping", ctx).Return(tt.mockPingErr)
 

@@ -1,10 +1,12 @@
-package service
+package link
 
 import (
 	"context"
 	"errors"
-	"github.com/ThienKim52/golang-dev/internal/app/repository"
 	"time"
+
+	"github.com/ThienKim52/golang-dev/internal/app/repository/link"
+	"github.com/ThienKim52/golang-dev/internal/app/service/genpass"
 )
 
 const (
@@ -23,11 +25,11 @@ type LinkService interface {
 // linkService implements LinkService
 type linkService struct {
 	storage repository.LinkRepository
-	genPass GenPass
+	genPass genpass.GenPass
 }
 
 // NewLinkService creates a new link service
-func NewLinkService(storage repository.LinkRepository, genPass GenPass) LinkService {
+func NewLinkService(storage repository.LinkRepository, genPass genpass.GenPass) LinkService {
 	return &linkService{
 		storage: storage,
 		genPass: genPass,

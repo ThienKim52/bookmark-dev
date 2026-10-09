@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ThienKim52/golang-dev/internal/app/repository"
-	"github.com/ThienKim52/golang-dev/internal/app/service"
+	urlstorage "github.com/ThienKim52/golang-dev/internal/app/repository/url_storage"
+	"github.com/ThienKim52/golang-dev/internal/app/service/link"
+	"github.com/ThienKim52/golang-dev/pkg/requestutils"
 	"github.com/ThienKim52/golang-dev/response"
 	"github.com/gin-gonic/gin"
 	log "github.com/rs/zerolog/log"
@@ -19,11 +20,11 @@ type LinkHandler interface {
 
 // LinkHandler handles link-related requests
 type shortenURL struct {
-	service service.LinkService
+	service link.LinkService
 }
 
 // NewLinkHandler creates a new link handler
-func NewLinkHandler(service service.LinkService) *shortenURL {
+func NewLinkHandler(service link.LinkService) *shortenURL {
 	return &shortenURL{
 		service: service,
 	}
@@ -46,10 +47,8 @@ type ShortenInputBody struct {
 // @Failure 500 {object} map[string]string
 // @Router /v1/links/shorten [post]
 func (h *shortenURL) ShortenURL(c *gin.Context) {
-	req := &ShortenInputBody{}
-
-	if err := c.ShouldBindJSON(req); err != nil {
-		c.JSON(http.StatusBadRequest, response.InputFieldError(err))
+	req, err := requestutils.BindInputFromRequest[ShortenInputBody](c)
+	if err != nil {
 		return
 	}
 
@@ -82,7 +81,7 @@ func (s *shortenURL) Redirect(c *gin.Context) {
 
 	url, err := s.service.GetLinkFromCode(c, code)
 	if err != nil {
-		if errors.Is(err, repository.ErrCodeNotFound) {
+		if errors.Is(err, urlstorage.ErrCodeNotFound) {
 			c.JSON(http.StatusNotFound, response.InternalErrResponse)
 			return
 		}

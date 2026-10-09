@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/ThienKim52/golang-dev/internal/app/service"
+	"github.com/ThienKim52/golang-dev/internal/app/service/genpass"
 	"github.com/ThienKim52/golang-dev/response"
 	log "github.com/rs/zerolog/log"
 )
@@ -18,11 +18,11 @@ type GenPass interface {
 }
 
 type genPass struct {
-	svc service.GenPass
+	svc genpass.GenPass
 }
 
 // Constructor
-func NewGenPass(svc service.GenPass) GenPass {
+func NewGenPass(svc genpass.GenPass) GenPass {
 	return &genPass{svc: svc}
 }
 

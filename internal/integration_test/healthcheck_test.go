@@ -95,8 +95,13 @@ func TestHealthCheck(t *testing.T) {
 			db := sqldb.InitMockDB(t)
 
 			// create engine application
-			apiEngine := api.New(gin.New(), &tc.cfg, redisClient, db)
-
+			apiEngine := api.New(&api.EngineOpts{
+				App:         gin.New(),
+				Config:      &tc.cfg,
+				RedisClient: redisClient,
+				DB:          db,
+				
+			})
 
 			// simulate HTTP request to endpoint /health-check
 			req := httptest.NewRequest("GET", "/health-check", nil)

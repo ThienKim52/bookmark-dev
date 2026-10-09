@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ThienKim52/golang-dev/internal/app/service"
+	"github.com/ThienKim52/golang-dev/internal/app/service/healthcheck"
 	mocks_healthcheck "github.com/ThienKim52/golang-dev/internal/app/service/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -25,7 +25,7 @@ func TestGetResponse(t *testing.T) {
 			name: "Successful health check",
 			setupMock: func(c *gin.Context) *mocks_healthcheck.HealthCheckService {
 				mockService := mocks_healthcheck.NewHealthCheckService(t)
-				mockService.On("GetHealthCheck", c).Return(service.HealthCheckResult{
+				mockService.On("GetHealthCheck", c).Return(healthcheck.HealthCheckResult{
 					Message:     "OK",
 					ServiceName: "test-service",
 					InstanceID:  "123e4567-e89b-12d3-a456-426614174000",
@@ -38,7 +38,7 @@ func TestGetResponse(t *testing.T) {
 			name: "Health check with empty values",
 			setupMock: func(c *gin.Context) *mocks_healthcheck.HealthCheckService {
 				mockService := mocks_healthcheck.NewHealthCheckService(t)
-				mockService.On("GetHealthCheck", c).Return(service.HealthCheckResult{
+				mockService.On("GetHealthCheck", c).Return(healthcheck.HealthCheckResult{
 					Message:     "OK",
 					ServiceName: "test-service",
 					InstanceID:  "123e4567-e89b-12d3-a456-426614174000",
@@ -51,7 +51,7 @@ func TestGetResponse(t *testing.T) {
 			name: "Redis connection error",
 			setupMock: func(c *gin.Context) *mocks_healthcheck.HealthCheckService {
 				mockService := mocks_healthcheck.NewHealthCheckService(t)
-				mockService.On("GetHealthCheck", c).Return(service.HealthCheckResult{}, assert.AnError)
+				mockService.On("GetHealthCheck", c).Return(healthcheck.HealthCheckResult{}, assert.AnError)
 				return mockService
 			},
 			expectedCode: http.StatusInternalServerError,

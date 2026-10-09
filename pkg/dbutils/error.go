@@ -25,17 +25,29 @@ func CatchDBError(err error) error {
 }
 
 var (
-ErrDuplicationUsername = errors.New("username already exists") 
-ErrDuplicationEmail = errors.New("email already exists")
-ErrRecordNotFound = errors. New("record not found")
+	ErrDuplicationUsername = errors.New("username already exists") 
+	ErrDuplicationEmail = errors.New("email already exists")
+	ErrRecordNotFound = errors.New("record not found")
 )
-func filterDuplicationUsername(err error) (bool, error) { 
-return strings.Contains(strings.ToLower(err.Error()), `"duplicate key value violates unique constraint "uni_users_username"`), nil
+
+func filterDuplicationUsername(err error) (bool, error) {
+    if strings.Contains(strings.ToLower(err.Error()), "uni_users_username") {
+        return true, ErrDuplicationUsername
+    }
+    return false, nil
 }
-func filterDuplicationEmail(err error) (bool, error) { 
-return strings.Contains(strings.ToLower(err.Error()), "duplicate key value"), nil
+
+func filterDuplicationEmail(err error) (bool, error) {
+    if strings.Contains(strings.ToLower(err.Error()), "uni_users_email") {
+        return true, ErrDuplicationEmail
+    }
+    return false, nil
 }
-func filterRecordNotFound(err error) (bool, error) { 
-return strings.Contains(strings.ToLower(err.Error()), "record not found"), nil
+
+func filterRecordNotFound(err error) (bool, error) {
+    if strings.Contains(strings.ToLower(err.Error()), "record not found") {
+        return true, ErrRecordNotFound
+    }
+    return false, nil
 }
 

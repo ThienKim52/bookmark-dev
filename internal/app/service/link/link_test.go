@@ -1,4 +1,4 @@
-package service
+package link
 
 import (
 	"context"
@@ -6,7 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ThienKim52/golang-dev/internal/app/repository"
+	"github.com/ThienKim52/golang-dev/internal/app/repository/mocks"
+	urlstorage "github.com/ThienKim52/golang-dev/internal/app/repository/url_storage"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,7 +24,7 @@ func (m *MockGenPass) GeneratePassword(passwordLength int) (string, error) {
 }
 
 func TestNewLinkService(t *testing.T) {
-	mockRepo := new(repository.MockLinkRepository)
+	mockRepo := new(mocks.MockLinkRepository)
 	mockGenPass := new(MockGenPass)
 	service := NewLinkService(mockRepo, mockGenPass)
 	assert.NotNil(t, service)
@@ -37,7 +39,7 @@ func TestLinkService_ShortenURL(t *testing.T) {
 		name         string
 		url          string
 		exp          time.Duration
-		setupMocks   func(mockRepo *repository.MockLinkRepository, mockGenPass *MockGenPass)
+		setupMocks   func(mockRepo *mocks.MockLinkRepository, mockGenPass *MockGenPass)
 		expectedCode string
 		expectedErr  error
 	}{
@@ -45,7 +47,7 @@ func TestLinkService_ShortenURL(t *testing.T) {
 			name: "Success",
 			url:  "https://example.com",
 			exp:  604800 * time.Second,
-			setupMocks: func(mockRepo *repository.MockLinkRepository, mockGenPass *MockGenPass) {
+			setupMocks: func(mockRepo *mocks.MockLinkRepository, mockGenPass *MockGenPass) {
 				ctx := context.Background()
 				mockGenPass.On("GeneratePassword", codeLength).Return("abc1234", nil)
 				mockRepo.On("Exists", ctx, "abc1234").Return(false, nil)
@@ -58,7 +60,7 @@ func TestLinkService_ShortenURL(t *testing.T) {
 			name: "CodeConflict_RetrySuccess",
 			url:  "https://example.com",
 			exp:  604800 * time.Second,
-			setupMocks: func(mockRepo *repository.MockLinkRepository, mockGenPass *MockGenPass) {
+			setupMocks: func(mockRepo *mocks.MockLinkRepository, mockGenPass *MockGenPass) {
 				ctx := context.Background()
 				mockGenPass.On("GeneratePassword", codeLength).Return("code1", nil).Once()
 				mockRepo.On("Exists", ctx, "code1").Return(true, nil).Once()
@@ -73,7 +75,7 @@ func TestLinkService_ShortenURL(t *testing.T) {
 			name: "MaxRetriesExceeded",
 			url:  "https://example.com",
 			exp:  604800 * time.Second,
-			setupMocks: func(mockRepo *repository.MockLinkRepository, mockGenPass *MockGenPass) {
+			setupMocks: func(mockRepo *mocks.MockLinkRepository, mockGenPass *MockGenPass) {
 				ctx := context.Background()
 				mockGenPass.On("GeneratePassword", codeLength).Return("code", nil)
 				mockRepo.On("Exists", ctx, mock.AnythingOfType("string")).Return(true, nil)
@@ -85,7 +87,7 @@ func TestLinkService_ShortenURL(t *testing.T) {
 			name: "RepositoryError",
 			url:  "https://example.com",
 			exp:  604800 * time.Second,
-			setupMocks: func(mockRepo *repository.MockLinkRepository, mockGenPass *MockGenPass) {
+			setupMocks: func(mockRepo *mocks.MockLinkRepository, mockGenPass *MockGenPass) {
 				ctx := context.Background()
 				mockGenPass.On("GeneratePassword", codeLength).Return("abc1234", nil)
 				mockRepo.On("Exists", ctx, "abc1234").Return(false, repoErr)
@@ -97,7 +99,7 @@ func TestLinkService_ShortenURL(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			mockRepo := new(repository.MockLinkRepository)
+			mockRepo := new(mocks.MockLinkRepository)
 			mockGenPass := new(MockGenPass)
 			service := NewLinkService(mockRepo, mockGenPass)
 
@@ -124,14 +126,14 @@ func TestLinkService_GetLinkFromCode(t *testing.T) {
 	tests := []struct {
 		name         string
 		code         string
-		setupMocks   func(mockRepo *repository.MockLinkRepository)
+		setupMocks   func(mockRepo *mocks.MockLinkRepository)
 		expectedLink string
 		expectedErr  error
 	}{
 		{
 			name: "Success",
 			code: "abc1234",
-			setupMocks: func(mockRepo *repository.MockLinkRepository) {
+			setupMocks: func(mockRepo *mocks.MockLinkRepository) {
 				ctx := context.Background()
 				mockRepo.On("GetURL", ctx, "abc1234").Return("https://example.com", nil)
 			},
@@ -141,18 +143,18 @@ func TestLinkService_GetLinkFromCode(t *testing.T) {
 		{
 			name: "CodeNotFound",
 			code: "abc1234",
-			setupMocks: func(mockRepo *repository.MockLinkRepository) {
+			setupMocks: func(mockRepo *mocks.MockLinkRepository) {
 				ctx := context.Background()
-				mockRepo.On("GetURL", ctx, "abc1234").Return("", repository.ErrCodeNotFound)
+				mockRepo.On("GetURL", ctx, "abc1234").Return("", urlstorage.ErrCodeNotFound)
 			},
 			expectedLink: "",
-			expectedErr:  repository.ErrCodeNotFound,
+			expectedErr:  urlstorage.ErrCodeNotFound,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			mockRepo := new(repository.MockLinkRepository)
+			mockRepo := new(mocks.MockLinkRepository)
 			mockGenPass := new(MockGenPass)
 			service := NewLinkService(mockRepo, mockGenPass)
 

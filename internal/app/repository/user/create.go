@@ -8,7 +8,11 @@ import (
 )
 
 func (r *sqlRepository) CreateUser(ctx context.Context, newUser *model.User) (*model.User, error) {
-	err := r.db.WithContext(ctx).Create(newUser).Error
+	db := r.db.WithContext(ctx)
+
+	result := db.Create(newUser)
+
+	err := result.Error
 	if err != nil {
 		return nil, dbutils.CatchDBError(err)
 	}

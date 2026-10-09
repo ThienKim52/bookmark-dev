@@ -3,9 +3,9 @@ package handler
 import (
 	"net/http"
 
-	"github.com/ThienKim52/golang-dev/internal/app/service"
-	"github.com/gin-gonic/gin"
+	"github.com/ThienKim52/golang-dev/internal/app/service/healthcheck"
 	"github.com/ThienKim52/golang-dev/response"
+	"github.com/gin-gonic/gin"
 	log "github.com/rs/zerolog/log"
 )
 
@@ -14,11 +14,11 @@ type HealthCheckHandler interface{
 }
 // HealthCheckHandler handles health check requests
 type healthCheckHandler struct {
-	service service.HealthCheckService
+	service healthcheck.HealthCheckService
 }
 
 // NewHealthCheck creates a new health check handler
-func NewHealthCheck(service service.HealthCheckService) HealthCheckHandler {
+func NewHealthCheck(service healthcheck.HealthCheckService) HealthCheckHandler {
 	return &healthCheckHandler{
 		service: service,
 	}

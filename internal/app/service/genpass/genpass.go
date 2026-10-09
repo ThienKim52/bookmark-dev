@@ -1,4 +1,4 @@
-package service
+package genpass
 
 import (
 	"crypto/rand"
