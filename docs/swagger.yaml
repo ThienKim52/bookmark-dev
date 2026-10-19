@@ -11,6 +11,38 @@ definitions:
     - exp
     - url
     type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      display_name:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  user.registerInput:
+    properties:
+      display_name:
+        type: string
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        type: string
+    required:
+    - display_name
+    - email
+    - password
+    - username
+    type: object
 info:
   contact: {}
   description: This is a health check API server.
@@ -93,4 +125,65 @@ paths:
       summary: Shorten a URL
       tags:
       - links
+  /v1/self/info:
+    get:
+      consumes:
+      - application/json
+      description: get your current information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            properties:
+              data:
+                $ref: '#/definitions/model.User'
+            type: object
+      security:
+      - BearerAuth: []
+      summary: get your current information
+      tags:
+      - user
+  /v1/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the provided information
+      parameters:
+      - description: User registration details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user.registerInput'
+      produces:
+      - application/json
+      responses: {}
+      summary: Register a new user
+      tags:
+      - User
+  /v1/users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with the provided information
+      parameters:
+      - description: User registration details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user.registerInput'
+      produces:
+      - application/json
+      responses: {}
+      summary: Register a new user
+      tags:
+      - User
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

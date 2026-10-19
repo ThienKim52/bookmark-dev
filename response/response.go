@@ -17,12 +17,16 @@ type Message struct {
 // Common response messages
 var (
 	InternalErrResponse = Message{
-	"Processing error",
-	nil,
+		"Processing error",
+		nil,
 	}
 	InputErrResponse = Message{
-	"Input error",
-	nil,
+		"Input error",
+		nil,
+	}
+	SuccessResponse = Message{
+		"Success",
+		nil,
 	}
 )
 
@@ -39,3 +43,4 @@ func InputFieldError(err error) Message {
 		Details: errs,
 	}
 }
+

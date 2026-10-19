@@ -1,27 +1,20 @@
 package main
 
 import (
-
-	"github.com/rs/zerolog/log"
-	"github.com/rs/zerolog"
-	
+	"github.com/ThienKim52/golang-dev/internal/app/model"
+	"github.com/ThienKim52/golang-dev/pkg/sqldb"
+	"github.com/google/uuid"
 )
 
 func main() {
-	// rclient, err := redis.NewClient("")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// rclient.Set(context.Background(), "1235", "google.com", time.Hour)
-
-	// rclient2, err := redis.NewClient("CACHE")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// rclient2.Set(context.Background(), "1999", "google.com", time.Hour)
-	zerolog.SetGlobalLevel(zerolog.WarnLevel)
-	log.Debug().Msg("test")
-	log.Info().Msg("test")
-	log.Warn().Msg("test")
-	log.Error().Msg("test")
+	dbClient, err := sqldb.NewClient("")
+	if err != nil {
+		panic(err)
+	}
+	dbClient.AutoMigrate(&model.User{})
+	dbClient.Create(&model.User{
+		ID: uuid.New().String(),
+		Username: "test",
+		Password: "test",
+	})
 }

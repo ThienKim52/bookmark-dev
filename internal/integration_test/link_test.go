@@ -104,8 +104,11 @@ func TestShortenURL(t *testing.T) {
 			mockRedis := tc.setupRedis(ctx)
 
 			// Initialize the Gin router
-			apiEngine := api.NewEngine(&api.Config{}, mockRedis)
-			rec := tc.setupTestHTTP(apiEngine)
+			testRouter := api.New(&api.EngineOpts{
+				Config: &api.Config{},
+				RedisClient: mockRedis,
+			})
+			rec := tc.setupTestHTTP(testRouter)
 			assert.Equal(t, tc.expectedStatusCode, rec.Code)
 			assert.Contains(t, rec.Body.String(), tc.expectedResponseBody)
 		})

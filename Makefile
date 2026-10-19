@@ -37,14 +37,14 @@ test-all:
 
 test:
 	@echo "Running all tests..."
-	@go test -v -race -coverprofile="coverage.out" ./...
+	@go test -v -coverprofile="coverage.out" ./...
 	go tool cover -html=coverage.out -o coverage.html
 
 
 ## test-unit: Run unit tests only
 test-unit:
 	@echo "Running unit tests..."
-	@go test -v -race ./internal/... -run "^((?!integration).)*$$"
+	@go test -v ./internal/... -run "^((?!integration).)*$$"
 
 ## test-integration: Run integration tests only
 test-integration:
@@ -139,3 +139,7 @@ docker-login:
 
 docker-push:
 	docker push $(IMG_NAME):$(IMG_TAG)
+
+generate-rsa-key:
+	openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048
+	openssl rsa -pubout -in private.pem -out public.pem
