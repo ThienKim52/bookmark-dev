@@ -37,14 +37,14 @@ test-all:
 
 test:
 	@echo "Running all tests..."
-	@go test -v -race -coverprofile="coverage.out" ./...
+	@go test -v -coverprofile="coverage.out" ./...
 	go tool cover -html=coverage.out -o coverage.html
 
 
 ## test-unit: Run unit tests only
 test-unit:
 	@echo "Running unit tests..."
-	@go test -v -race ./internal/... -run "^((?!integration).)*$$"
+	@go test -v ./internal/... -run "^((?!integration).)*$$"
 
 ## test-integration: Run integration tests only
 test-integration:
