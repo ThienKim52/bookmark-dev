@@ -1,7 +1,7 @@
 .PHONY: all build run test test-unit test-integration clean swagger fmt lint deps help docker-build docker-run docker-compose-up
 GIT_TAG := $(shell git describe --tags --exact-match --abbrev=0 2>/dev/null)
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
-IMG_TAG := latest
+IMG_TAG := v2.0.5
 IMG_NAME=kimthanthien/bookmark
 ifneq ($(GIT_TAG),)
    IMG_TAG := $(GIT_TAG)

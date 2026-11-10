@@ -33,6 +33,7 @@ type registerResponse struct {
 	Data    userResponseData `json:"data"`
 	Message string           `json:"message"`
 }
+
 // Register handles user registration requests.
 // It validates the JSON input, delegates to the service layer for user creation,
 // and returns the created user or an appropriate error response.

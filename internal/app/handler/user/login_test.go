@@ -34,7 +34,7 @@ func TestLogin(t *testing.T) {
 		},
 		{
 			name:     "Invalid credentials",
-			reqBody: `{"username":"test123","password":"12223344"}`,
+			reqBody: `{"username":"test123","password":"wrongpass"}`,
 			setupMock: func(c *gin.Context) *mocks_userservice.Service {
 				mock := mocks_userservice.NewService(t)
 				mock.On("Login", c, "test123", "wrongpass").Return("", user.ErrInvalidCredentials)

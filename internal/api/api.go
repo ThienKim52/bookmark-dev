@@ -7,20 +7,24 @@ import (
 
 	"github.com/ThienKim52/golang-dev/docs"
 	"github.com/ThienKim52/golang-dev/internal/api/middleware"
+	bookmarkHdl "github.com/ThienKim52/golang-dev/internal/app/handler/bookmark"
+	genpassHdl "github.com/ThienKim52/golang-dev/internal/app/handler/genpass"
 	healthcheckHdl "github.com/ThienKim52/golang-dev/internal/app/handler/healthcheck"
-	userSvc "github.com/ThienKim52/golang-dev/internal/app/service/user"
+	linkHdl "github.com/ThienKim52/golang-dev/internal/app/handler/link"
 	userHdl "github.com/ThienKim52/golang-dev/internal/app/handler/user"
+	bookmarkRepo "github.com/ThienKim52/golang-dev/internal/app/repository/bookmark"
 	repoLink "github.com/ThienKim52/golang-dev/internal/app/repository/link"
 	repo "github.com/ThienKim52/golang-dev/internal/app/repository/user"
-	genpassHdl"github.com/ThienKim52/golang-dev/internal/app/handler/genpass"
-	genpassSvc"github.com/ThienKim52/golang-dev/internal/app/service/genpass"
-	linkHdl "github.com/ThienKim52/golang-dev/internal/app/handler/link"
-	linkSvc "github.com/ThienKim52/golang-dev/internal/app/service/link"
+	bookmarkSvc "github.com/ThienKim52/golang-dev/internal/app/service/bookmark"
+	genpassSvc "github.com/ThienKim52/golang-dev/internal/app/service/genpass"
 	healthcheckSvc "github.com/ThienKim52/golang-dev/internal/app/service/healthcheck"
+	linkSvc "github.com/ThienKim52/golang-dev/internal/app/service/link"
+	userSvc "github.com/ThienKim52/golang-dev/internal/app/service/user"
 	"github.com/ThienKim52/golang-dev/pkg/jwtutils"
 	"github.com/ThienKim52/golang-dev/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
@@ -63,15 +67,23 @@ type EngineOpts struct {
 	JWTVal      jwtutils.JWTValidator
 }
 
-
 func New(opts *EngineOpts) Engine {
+	if opts == nil {
+		opts = &EngineOpts{}
+	}
+	if opts.App == nil {
+		opts.App = gin.New()
+	}
+	if opts.Config == nil {
+		opts.Config = &Config{}
+	}
 	app := &engine{
 		app:         opts.App,
 		config:      opts.Config,
 		redisClient: opts.RedisClient,
-		db: opts.DB,
-		jwtGen: opts.JWTGen,
-		jwtVal: opts.JWTVal,
+		db:          opts.DB,
+		jwtGen:      opts.JWTGen,
+		jwtVal:      opts.JWTVal,
 	}
 	app.initRoutes()
 	return app
@@ -87,7 +99,7 @@ func (e *engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	e.app.ServeHTTP(w, req)
 }
 
-func (e *engine) initHandlers() *allHandlers{
+func (e *engine) initHandlers() *allHandlers {
 	linkRepo := repoLink.NewRedisLinkRepository(e.redisClient)
 
 	// Health check endpoint with Redis check
@@ -105,11 +117,16 @@ func (e *engine) initHandlers() *allHandlers{
 	userService := userSvc.NewService(userRepo, hasher, e.jwtGen)
 	userHdl := userHdl.NewHandler(userService)
 
+	bookmarkRepo := bookmarkRepo.NewBookmarkRepository(e.db)
+	bookmarkSvc := bookmarkSvc.NewBookmarkService(bookmarkRepo, utils.NewKeyGenerator())
+	bookmarkHdl := bookmarkHdl.NewBookmarkHandler(bookmarkSvc)
+
 	return &allHandlers{
 		healthCheckSvcHdl: healthCheckSvcHdl,
 		genPassHdl:        genPassHdl,
 		linkHdl:           linkHdl,
 		userHdl:           userHdl,
+		bookmarkHdl:       bookmarkHdl,
 	}
 }
 
@@ -118,6 +135,7 @@ type allHandlers struct {
 	genPassHdl        genpassHdl.GenPass
 	linkHdl           linkHdl.LinkHandler
 	userHdl           userHdl.Handler
+	bookmarkHdl       bookmarkHdl.BookmarkHandler
 }
 
 // Initialize routes
@@ -140,8 +158,17 @@ func (e *engine) initRoutes() {
 		v1Routes.GET("/links/redirect/:code", allHandlers.linkHdl.Redirect)
 		v1Routes.POST("/users/register", allHandlers.userHdl.Register)
 		v1Routes.POST("/users/login", allHandlers.userHdl.Login)
-		
+
 	}
+	bookmarkRoutes := v1Routes.Group("/bookmarks")
+	bookmarkRoutes.Use(jwtAuth.JWTAuth())
+	{
+		bookmarkRoutes.POST("", allHandlers.bookmarkHdl.AddBookmark)
+		bookmarkRoutes.GET("", allHandlers.bookmarkHdl.GetBookmarks)
+		bookmarkRoutes.PUT("/:id", allHandlers.bookmarkHdl.UpdateBookmark)
+		bookmarkRoutes.DELETE("/:id", allHandlers.bookmarkHdl.DeleteBookmark)
+	}
+
 	selfRoutes := v1Routes.Group("/self")
 	selfRoutes.Use(jwtAuth.JWTAuth())
 	{

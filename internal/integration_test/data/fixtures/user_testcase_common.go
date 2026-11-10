@@ -18,14 +18,14 @@ func (u *UserCommonTestDB) GenerateData() error {
 	db := u.db.Session(&gorm.Session{SkipHooks: true})
 	users := []*model.User{
 		{
-			ID: "deb745af-1a62-4efa-99a0-f06b274bd990",
+			Base: GetTestBase("deb745af-1a62-4efa-99a0-f06b274bd990"),
 			DisplayName: "John Doe",
 			Username: "johndoe",
 			Password: "password123",
 			Email: "johndoe@example.com",
 		},
 		{
-			ID: "deb745af-1a62-4efa-99a0-f06b274bd991",
+			Base: GetTestBase("deb745af-1a62-4efa-99a0-f06b274bd991"),
 			DisplayName: "Aimee Than",
 			Username: "aimeethan",
 			Password: "password123",

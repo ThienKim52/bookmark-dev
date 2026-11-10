@@ -16,6 +16,15 @@ type editSelfInfoInput struct {
 	Email       string `json:"email" binding:"email"`
 }
 
+// EditSelfInfo edit your current information
+// @Summary edit your current information
+// @Description edit your current information
+// @Tags user
+// @Security BearerAuth
+// @Accept application/json
+// @Produce application/json
+// @Success 200 {object} map[string]string
+// @Router /v1/self/info [put]
 func (h *userHandler) EditSelfInfo(c *gin.Context) {
 	uid, err := requestutils.GetUserIDFromRequest(c)
 	if err != nil {

@@ -9,6 +9,8 @@ var errorFilters = []func(err error) (bool, error) {
 	filterDuplicationUsername,
 	filterDuplicationEmail,
 	filterRecordNotFound,
+	filterUniqueConstraint,
+	filterBookmarkNotFound,
 }
 func CatchDBError(err error) error {
 	if err == nil {
@@ -28,6 +30,8 @@ var (
 	ErrDuplicationUsername = errors.New("username already exists") 
 	ErrDuplicationEmail = errors.New("email already exists")
 	ErrRecordNotFound = errors.New("record not found")
+	ErrUniqueConstraint = errors.New("unique constraint")
+	ErrBookmarkNotFound = errors.New("bookmark not found")
 )
 
 func filterDuplicationUsername(err error) (bool, error) {
@@ -51,3 +55,17 @@ func filterRecordNotFound(err error) (bool, error) {
     return false, nil
 }
 
+func filterUniqueConstraint(err error) (bool, error) {
+	errLower := strings.ToLower(err.Error())
+	if strings.Contains(errLower, "unique constraint") || strings.Contains(errLower, "duplicate key") || strings.Contains(errLower, "uni_code") {
+		return true, ErrUniqueConstraint
+	}
+	return false, nil
+}
+
+func filterBookmarkNotFound(err error) (bool, error) {
+	if strings.Contains(strings.ToLower(err.Error()), "bookmark not found") {
+		return true, ErrBookmarkNotFound
+	}
+	return false, nil
+}

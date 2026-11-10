@@ -7,7 +7,7 @@ import (
 )
 
 // @title Health Check API
-// @version 1.1
+// @version 2.3
 // @description This is a health check API server.
 // @Basepath /
 // @securityDefinitions.apikey BearerAuth
@@ -16,6 +16,6 @@ import (
 func main() {
 	engine := infrastructure.CreateAPI()
 	if err := engine.Start(); err != nil {
-        panic(err)
-    }
+		panic(err)
+	}
 }

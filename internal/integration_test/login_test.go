@@ -46,7 +46,9 @@ func seedUserWithHashPwd(t *testing.T, db *gorm.DB, username, plainPwassword, em
 	hashBytes, err := bcrypt.GenerateFromPassword([]byte(plainPwassword), bcrypt.DefaultCost)
 	require.NoError(t, err)
 	user := &model.User{
-		ID: "test1",
+		Base: model.Base{
+			ID: "test1",
+		},
 		Username: username,
 		Password: string(hashBytes),
 		Email: email,

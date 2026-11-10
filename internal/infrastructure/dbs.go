@@ -1,7 +1,8 @@
 package infrastructure
 
 import (
-	"github.com/ThienKim52/golang-dev/internal/app/model"
+	"os"
+
 	redisPkg "github.com/ThienKim52/golang-dev/pkg/redis"
 	"github.com/ThienKim52/golang-dev/pkg/sqldb"
 	"github.com/ThienKim52/golang-dev/pkg/utils"
@@ -24,6 +25,12 @@ func CreateSQLWithMigration() *gorm.DB {
 	return sqlDB
 }
 
-func MigrateDB(db *gorm.DB) error {
-	return db.AutoMigrate(&model.User{})
-}
+const migrationPath = "file://internal/migrations"
+
+func MigrateDB(dbClient *gorm.DB) error {
+	path := os.Getenv("MIGRATION_PATH")
+	if path == "" {
+		path = migrationPath
+	}
+	return sqldb.MigrateSQLDB(dbClient, path, "up", 0)
+}

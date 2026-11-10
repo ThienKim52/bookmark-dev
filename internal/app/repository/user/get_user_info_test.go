@@ -29,7 +29,9 @@ func TestGetUserInfo(t *testing.T) {
 				// seed dữ liệu
 				
 				user := &model.User{
-					ID:          "user-1",
+					Base: model.Base{
+						ID: "user-1",
+					},
 					Username:    "johndoe",
 					DisplayName: "John Doe",
 				}
@@ -37,7 +39,9 @@ func TestGetUserInfo(t *testing.T) {
 				require.NoError(t, err)
 			},
 			expectedUser: &model.User{
-				ID:          "user-1",
+				Base: model.Base{
+					ID: "user-1",
+				},
 				Username:    "johndoe",
 				DisplayName: "John Doe",
 			},

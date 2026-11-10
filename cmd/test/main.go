@@ -13,7 +13,9 @@ func main() {
 	}
 	dbClient.AutoMigrate(&model.User{})
 	dbClient.Create(&model.User{
-		ID: uuid.New().String(),
+		Base: model.Base{
+			ID: uuid.New().String(),
+		},
 		Username: "test",
 		Password: "test",
 	})

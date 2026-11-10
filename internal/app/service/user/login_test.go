@@ -19,7 +19,9 @@ func TestLogin(t *testing.T) {
 	t.Parallel()
 
 	existingUser := &model.User{
-		ID:       "user-123",
+		Base: model.Base{
+			ID: "user-123",
+		},
 		Username: "johndoe",
 		Password: "hashed-password",
 		Email:    "john@test.com",

@@ -24,7 +24,9 @@ func TestSelfInfo(t *testing.T) {
 			setupMock: func(c *gin.Context) *mocks_userservice.Service {
 				mock := mocks_userservice.NewService(t)
 				mock.On("GetUserInfo", c, "test-user-id").Return(&model.User{
-					ID: "test-user-id",
+					Base: model.Base{
+						ID: "test-user-id",
+					},
 					Username: "test",
 					Email: "test@gmail.com",
 					DisplayName: "test123",
