@@ -12,6 +12,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/ThienKim52/golang-dev/pkg/sqldb"
 )
 
 func TestHealthCheck(t *testing.T) {
@@ -91,10 +92,16 @@ func TestHealthCheck(t *testing.T) {
 				Addr: mr.Addr(),
 			})
 			defer redisClient.Close()
+			db := sqldb.InitMockDB(t)
 
 			// create engine application
-			apiEngine := api.New(gin.New(), &tc.cfg, redisClient)
-
+			apiEngine := api.New(&api.EngineOpts{
+				App:         gin.New(),
+				Config:      &tc.cfg,
+				RedisClient: redisClient,
+				DB:          db,
+				
+			})
 
 			// simulate HTTP request to endpoint /health-check
 			req := httptest.NewRequest("GET", "/health-check", nil)

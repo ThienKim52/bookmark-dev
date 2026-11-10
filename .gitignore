@@ -5,3 +5,5 @@ cmd/test/main.go
 internal/api/config_test.go
 test-output/*
 coverage
+private.pem
+public.pem
