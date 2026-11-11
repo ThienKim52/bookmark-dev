@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ThienKim52/golang-dev/internal/app/handler/dto"
+	"github.com/ThienKim52/golang-dev/internal/app/model"
 	"github.com/ThienKim52/golang-dev/pkg/dbutils"
 	"github.com/ThienKim52/golang-dev/pkg/requestutils"
 	"github.com/ThienKim52/golang-dev/response"
@@ -25,7 +26,7 @@ type BookmarkInput struct {
 // @Accept application/json
 // @Param input body BookmarkInput true "Input required"
 // @Produce application/json
-// @Success 200 {object} object{data=model.User} "Success"
+// @Success 200 {object} dto.SuccessResponse[model.Bookmark] "Success"
 // @Router /v1/bookmarks [post]
 func (h *bookmarkHandler) AddBookmark(c *gin.Context) {
 	input, uid, err := requestutils.BindInputFromRequestWithAuth[BookmarkInput](c)
@@ -44,7 +45,7 @@ func (h *bookmarkHandler) AddBookmark(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(http.StatusOK, &dto.BookmarkCreateResponse{
+	c.JSON(http.StatusOK, &dto.SuccessResponse[*model.Bookmark]{
 		Data: res,
 		Message: "Create a bookmark successfully!",
 	})

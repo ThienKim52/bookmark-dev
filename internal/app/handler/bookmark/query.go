@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/ThienKim52/golang-dev/internal/app/handler/dto"
+	"github.com/ThienKim52/golang-dev/internal/app/model"
 	"github.com/ThienKim52/golang-dev/pkg/requestutils"
 	"github.com/ThienKim52/golang-dev/response"
 	"github.com/gin-gonic/gin"
@@ -18,13 +19,13 @@ import (
 // @Produce json
 // @Param page query integer false "Page number (minimum 1)" minimum(1) default(1)
 // @Param limit query integer false "Number of items per page" minimum(1) default(20)
-// @Success 200 {object} dto.BookmarkListResponse "Bookmarks retrieved successfully"
+// @Success 200 {object} dto.SuccessResponse[[]model.Bookmark] "Bookmarks retrieved successfully"
 // @Failure 400 {object} object "Invalid pagination parameters"
 // @Failure 401 {object} object "Unauthorized"
 // @Failure 500 {object} object "Internal server error"
 // @Router /v1/bookmarks [get]
 func (h *bookmarkHandler) GetBookmarks(c *gin.Context) {
-	input, uid, err := requestutils.BindInputFromRequestWithAuth[dto.BookmarkInput](c)
+	input, uid, err := requestutils.BindInputFromRequestWithAuth[dto.BookmarkPaginationInput](c)
 	if err != nil {
 		return
 	}
@@ -50,7 +51,7 @@ func (h *bookmarkHandler) GetBookmarks(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, response.InternalErrResponse)
 		return
 	}
-	c.JSON(http.StatusOK, &dto.BookmarkListResponse{
+	c.JSON(http.StatusOK, &dto.SuccessResponse[[]*model.Bookmark]{
 		Data: res.Bookmarks,
 		Pagination: &dto.Pagination{
 			Page:  input.Page,
